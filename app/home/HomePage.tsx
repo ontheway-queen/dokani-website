@@ -14,7 +14,6 @@ import {
   Quote,
   Star,
 } from 'lucide-react';
-import { useState } from 'react';
 import { CTASection } from '@/components/site/CTASection';
 import { modules } from '@/lib/modules';
 import { useT } from '@/lib/i18n';
@@ -368,9 +367,6 @@ function Testimonials() {
 
 function PricingPreview() {
   const { t } = useT();
-  const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
-  const price = billing === 'monthly' ? 1200 : 12000;
-  const suffix = billing === 'monthly' ? t('pricing.perMo') : t('pricing.perYr');
 
   const features = [
     t('pricing.feat1'),
@@ -381,6 +377,25 @@ function PricingPreview() {
     t('pricing.feat6'),
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring' as const, stiffness: 100, damping: 15 },
+    },
+  };
+
   return (
     <section className='mx-auto max-w-7xl px-5 py-24 md:px-8'>
       <motion.div {...fadeUp} className='mx-auto max-w-2xl text-center'>
@@ -390,67 +405,122 @@ function PricingPreview() {
         <h2 className='mt-3 font-display text-3xl font-bold text-ink md:text-5xl'>
           {t('pricing.title')}
         </h2>
-        <p className='mt-4 text-muted-foreground'>{t('pricing.sub')}</p>
-
-        <div className='mt-8 inline-flex items-center gap-1 rounded-full border border-border bg-card p-1 shadow-soft'>
-          {(['monthly', 'yearly'] as const).map((b) => (
-            <button
-              key={b}
-              type='button'
-              onClick={() => setBilling(b)}
-              className={`relative rounded-full px-5 py-2 text-sm font-semibold transition ${
-                billing === b
-                  ? 'bg-primary text-primary-foreground shadow-glow'
-                  : 'text-muted-foreground hover:text-ink'
-              }`}
-            >
-              {b === 'monthly' ? t('pricing.monthly') : t('pricing.yearly')}
-              {b === 'yearly' && (
-                <span
-                  className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                    billing === 'yearly'
-                      ? 'bg-primary-foreground/15 text-primary-foreground'
-                      : 'bg-primary-soft text-primary'
-                  }`}
-                >
-                  {t('pricing.save')}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+        <p className='mt-4 text-muted-foreground'>{t('pricing.pageSub')}</p>
       </motion.div>
 
-      <motion.div {...fadeUp} className='mx-auto mt-12 max-w-2xl'>
-        <div className='relative rounded-3xl border-2 border-primary bg-card p-8 shadow-glow md:p-10'>
-          <span className='absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-primary-foreground'>
+      {/* Pricing Cards Grid */}
+      <motion.div
+        variants={containerVariants}
+        initial='hidden'
+        whileInView='show'
+        viewport={{ once: true, margin: '-100px' }}
+        className='grid grid-cols-1 gap-8 md:grid-cols-2 mt-16 max-w-5xl mx-auto md:max-w-3xl'
+      >
+        {/* Starter Plan Card */}
+        <motion.div
+          variants={cardVariants}
+          className='flex flex-col justify-between rounded-3xl border border-border bg-card p-8 shadow-soft transition-all duration-300 hover:shadow-card hover:scale-[1.01]'
+        >
+          <div>
+            <div className='mb-4'>
+              <h3 className='font-display text-2xl font-bold text-ink'>
+                {t('pricing.starterName')}
+              </h3>
+              <p className='mt-2 min-h-[40px] text-sm text-muted-foreground'>
+                {t('pricing.starterDesc')}
+              </p>
+            </div>
+
+            <div className='my-6 min-h-[85px]'>
+              <p className='font-display text-4xl font-bold text-ink md:text-5xl'>
+                ৳{t('pricing.starterPrice')}
+                <span className='text-sm font-medium text-muted-foreground ml-1'>
+                  {t('pricing.perMo')}
+                </span>
+              </p>
+              <p className='mt-2 text-xs text-muted-foreground uppercase tracking-wider font-bold'>
+                {t('pricing.starterBilled')}
+              </p>
+            </div>
+
+            <Link
+              href='/contact'
+              className='mt-2 flex w-full items-center justify-center rounded-full border border-primary px-6 py-3.5 text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary-soft hover:scale-[1.02]'
+            >
+              {t('pricing.starterChoose')}
+            </Link>
+
+            <hr className='my-8 border-border' />
+
+            <div>
+              <p className='text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4'>
+                {t('pricing.includes')}
+              </p>
+              <ul className='space-y-3.5 text-sm'>
+                {features.map((f) => (
+                  <li key={f} className='flex items-start gap-3 text-foreground'>
+                    <Check className='mt-0.5 h-4.5 w-4.5 shrink-0 text-primary' />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Pro Plan Card (Highlighted) */}
+        <motion.div
+          variants={cardVariants}
+          className='relative flex flex-col justify-between rounded-3xl border-2 border-primary bg-card p-8 shadow-glow transition-all duration-300 hover:scale-[1.01]'
+        >
+          <span className='absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-primary-foreground shadow-glow'>
             {t('pricing.mostPopular')}
           </span>
-          <div className='text-center'>
-            <p className='font-display text-2xl font-bold text-ink'>{t('pricing.planName')}</p>
-            <p className='mt-2 text-sm text-muted-foreground'>{t('pricing.planDesc')}</p>
-            <p className='mt-6 font-display text-5xl font-bold text-ink md:text-6xl'>
-              ৳{price.toLocaleString('en-IN')}
-              <span className='text-lg font-medium text-muted-foreground'>{suffix}</span>
-            </p>
-          </div>
-          <ul className='mx-auto mt-8 grid max-w-md gap-3 text-sm sm:grid-cols-2'>
-            {features.map((f) => (
-              <li key={f} className='flex items-start gap-2.5 text-foreground'>
-                <Check className='mt-0.5 h-4 w-4 shrink-0 text-primary' />
-                {f}
-              </li>
-            ))}
-          </ul>
-          <div className='mt-8 text-center'>
+
+          <div>
+            <div className='mb-4'>
+              <h3 className='font-display text-2xl font-bold text-ink'>{t('pricing.proName')}</h3>
+              <p className='mt-2 min-h-[40px] text-sm text-muted-foreground'>
+                {t('pricing.proDesc')}
+              </p>
+            </div>
+
+            <div className='my-6 min-h-[85px]'>
+              <p className='font-display text-4xl font-bold text-ink md:text-5xl'>
+                ৳{t('pricing.proPrice')}
+                <span className='text-sm font-medium text-muted-foreground ml-1'>
+                  {t('pricing.perYr')}
+                </span>
+              </p>
+              <p className='mt-2 text-xs text-primary uppercase tracking-wider font-bold'>
+                {t('pricing.proBilled')}
+              </p>
+            </div>
+
             <Link
-              href='/pricing'
-              className='inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground transition hover:shadow-glow hover:scale-[1.02]'
+              href='/contact'
+              className='mt-2 flex w-full items-center justify-center rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-glow transition-all duration-200 hover:bg-primary-glow hover:scale-[1.02]'
             >
-              {t('pricing.choose')}
+              {t('pricing.proChoose')}
             </Link>
+
+            <hr className='my-8 border-border' />
+
+            <div>
+              <p className='text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4'>
+                {t('pricing.includes')}
+              </p>
+              <ul className='space-y-3.5 text-sm'>
+                {features.map((f) => (
+                  <li key={f} className='flex items-start gap-3 text-foreground'>
+                    <Check className='mt-0.5 h-4.5 w-4.5 shrink-0 text-primary' />
+                    <span className='font-medium'>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </motion.div>
     </section>
   );
