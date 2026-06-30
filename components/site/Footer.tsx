@@ -65,7 +65,7 @@ export function Footer() {
               target='_blank'
               className='font-semibold text-ink transition hover:text-primary'
             >
-              M360ICT
+              M360ICT LTD
             </Link>{' '}
             {lang === 'bn' ? t('footer.tagline') : ''}
           </p>
