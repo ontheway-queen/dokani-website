@@ -3,17 +3,24 @@
 import { useT } from '@/lib/i18n';
 import { CheckCircle2, Mail, MapPin, Phone, Send, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [captchaValue, setCaptchaValue] = useState<string | null>(null);
   const { t } = useT();
 
   const email = 'dokani.sup@gmail.com';
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!captchaValue) {
+      setError('Please complete the recaptcha');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -220,9 +227,16 @@ export default function ContactPage() {
 
               {error && <p className='text-sm font-medium text-red-500'>{error}</p>}
 
+              <div className='flex justify-start'>
+                <ReCAPTCHA
+                  sitekey='6LeXR9MtAAAAAPh6X0pUC7WUmBRQGMXI0IsDQdU4'
+                  onChange={(value) => setCaptchaValue(value)}
+                />
+              </div>
+
               <button
                 type='submit'
-                disabled={loading}
+                disabled={loading || !captchaValue}
                 className='inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:shadow-glow disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto'
               >
                 {loading ? 'Sending...' : t('contact.send')}
